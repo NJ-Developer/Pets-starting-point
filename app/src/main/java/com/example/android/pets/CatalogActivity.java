@@ -121,21 +121,22 @@ public class CatalogActivity extends AppCompatActivity
             case R.id.action_insert_dummy_data:
                 // Do nothing for now
                 //  insertPet();
-                String name = contentValues.getAsString(PetContract.PetEntry.Column_Pet_Name);
-                String breed = contentValues.getAsString(PetContract.PetEntry.Column_Pet_Breed);
-                int gender = contentValues.getAsInteger(PetContract.PetEntry.Column_Pet_Gender);
-                int weight = contentValues.getAsInteger(PetContract.PetEntry.Column_Pet_Weight);
-                if (name == null || breed == null || weight == 0 || gender == -1)
-                {
-                    throw new IllegalArgumentException("one of the field is missing");
-                }
-                else {
-                    Uri newUri = getContentResolver().insert(PetContract.PetEntry.CONTENT_URI, contentValues);
-                    if (newUri == null) {
-                        Toast.makeText(this, getString(R.string.fail_to_save), Toast.LENGTH_LONG).show();
+                if(contentValues.containsKey(PetContract.PetEntry.Column_Pet_Name)) {
+                    String name = contentValues.getAsString(PetContract.PetEntry.Column_Pet_Name);
+                    //String breed = contentValues.getAsString(PetContract.PetEntry.Column_Pet_Breed);
+                    //int gender = contentValues.getAsInteger(PetContract.PetEntry.Column_Pet_Gender);
+                    //int weight = contentValues.getAsInteger(PetContract.PetEntry.Column_Pet_Weight);
+                    //if (name == null || breed == null || weight == 0 || gender == -1)
+                    if (name == null) {
+                        throw new IllegalArgumentException("one of the field is missing");
                     } else {
-                        displayDatabaseInfo();
-                        Toast.makeText(this, getString(R.string.pet_saved), Toast.LENGTH_LONG).show();
+                        Uri newUri = getContentResolver().insert(PetContract.PetEntry.CONTENT_URI, contentValues);
+                        if (newUri == null) {
+                            Toast.makeText(this, getString(R.string.fail_to_save), Toast.LENGTH_LONG).show();
+                        } else {
+                            displayDatabaseInfo();
+                            Toast.makeText(this, getString(R.string.pet_saved), Toast.LENGTH_LONG).show();
+                        }
                     }
                 }
                  return true;
@@ -143,25 +144,25 @@ public class CatalogActivity extends AppCompatActivity
             case R.id.action_update_data:
                 contentValues1 = new ContentValues();
                 contentValues1.put(PetContract.PetEntry.Column_Pet_Name,"Pinko");
-                String name_Update = contentValues1.getAsString(PetContract.PetEntry.Column_Pet_Name);
-                //        String breed_Update = contentValues.getAsString(PetContract.PetEntry.Column_Pet_Breed);
-                //      int gender_Update= contentValues.getAsInteger(PetContract.PetEntry.Column_Pet_Gender);
-                //    int weight_Update= contentValues.getAsInteger(PetContract.PetEntry.Column_Pet_Weight);
-                if (name_Update == null)
-                {
-                    throw new IllegalArgumentException("Please provide name to update");
-                }
-                else {
-                    // String[] selectionArgs = {"gagan"};
-                    int rows = getContentResolver().update(PetContract.PetEntry.CONTENT_URI, contentValues1, selection, selectionArgs);
-                    //Uri byId= Uri.withAppendedPath(CONTENT_URI,"13");
-                   // int rows = getContentResolver().update(byId, contentValues1, null, null);
-                   // Log.v("path",.toString());
-                    if (rows==0) {
-                        Toast.makeText(this, getString(R.string.fail_to_save), Toast.LENGTH_LONG).show();
+                if(contentValues1.containsKey(PetContract.PetEntry.Column_Pet_Name)) {
+                    String name_Update = contentValues1.getAsString(PetContract.PetEntry.Column_Pet_Name);
+                    //        String breed_Update = contentValues.getAsString(PetContract.PetEntry.Column_Pet_Breed);
+                    //      int gender_Update= contentValues.getAsInteger(PetContract.PetEntry.Column_Pet_Gender);
+                    //    int weight_Update= contentValues.getAsInteger(PetContract.PetEntry.Column_Pet_Weight);
+                    if (name_Update == null) {
+                        throw new IllegalArgumentException("Please provide name to update");
                     } else {
-                        displayDatabaseInfo();
-                        Toast.makeText(this,"Updated By Name", Toast.LENGTH_LONG).show();
+                        // String[] selectionArgs = {"gagan"};
+                        int rows = getContentResolver().update(PetContract.PetEntry.CONTENT_URI, contentValues1, selection, selectionArgs);
+                        //Uri byId= Uri.withAppendedPath(CONTENT_URI,"13");
+                        // int rows = getContentResolver().update(byId, contentValues1, null, null);
+                        // Log.v("path",.toString());
+                        if (rows == 0) {
+                            Toast.makeText(this, getString(R.string.fail_to_save), Toast.LENGTH_LONG).show();
+                        } else {
+                            displayDatabaseInfo();
+                            Toast.makeText(this, "Updated By Name", Toast.LENGTH_LONG).show();
+                        }
                     }
                 }
             case R.id.action_updateby_id:
