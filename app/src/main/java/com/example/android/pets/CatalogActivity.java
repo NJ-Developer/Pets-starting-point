@@ -1,10 +1,7 @@
-
 package com.example.android.pets;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -13,22 +10,20 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.ListView;
 import android.widget.Toast;
-
 import com.example.android.pets.data.PetContract;
-import com.example.android.pets.data.PetDbHelper;
-
-import static com.example.android.pets.data.PetContract.PetEntry.BASE_CONTENT_URI;
+import com.example.android.pets.data.PetCursorAdaptor;
 import static com.example.android.pets.data.PetContract.PetEntry.CONTENT_URI;
-
 /**
  * Displays list of pets that were entered and stored in the app.
  */
 public class CatalogActivity extends AppCompatActivity
 {
-    String[] projection={PetContract.PetEntry.Column_Pet_Name, PetContract.PetEntry._ID, PetContract.PetEntry.Column_Pet_Weight};
-    String selection = PetContract.PetEntry.Column_Pet_Name + " =?";
+    ListView listView;
+    String[] projection={PetContract.PetEntry.Column_Pet_Name, PetContract.PetEntry._ID, PetContract.PetEntry.Column_Pet_Weight,PetContract.PetEntry.Column_Pet_Breed};
+    //String[] projection={PetContract.PetEntry.Column_Pet_Name,PetContract.PetEntry.Column_Pet_Breed};
+    String selection = PetContract.PetEntry.Column_Pet_Name + "=?";
     String sortOrder = PetContract.PetEntry._ID + " DESC";
     String[] selectionArgs={"gagan"};
     ContentValues contentValues,contentValues1;
@@ -36,8 +31,10 @@ public class CatalogActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_catalog);
-
+        setContentView(R.layout.listview);
+         listView= (ListView)  findViewById(R.id.list_pets);
+         View emptyView = findViewById(R.id.emptyview);
+         listView.setEmptyView(emptyView);
         // Setup FAB to open EditorActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -65,7 +62,7 @@ public class CatalogActivity extends AppCompatActivity
 
     private void displayDatabaseInfo()
     {
-        TextView displayView = (TextView)findViewById(R.id.text_view_pet);
+//        TextView displayView = (TextView)findViewById(R.id.text_view_pet);
 
        // SQLiteDatabase db = petDbHelper.getReadableDatabase();
        // Cursor cursor = db.rawQuery("SELECT * FROM "+ PetContract.PetEntry.Table_Name,null);
@@ -87,9 +84,11 @@ public class CatalogActivity extends AppCompatActivity
             finally {
             cursor.close();
         }*/
-       Cursor cursor = getContentResolver().query(PetContract.PetEntry.CONTENT_URI,projection,null,null,null);
-       displayView.setText(" "+cursor.getCount());
-
+//        PetCursorAdaptor petCursorAdaptor = getContentResolver().query(PetContract.PetEntry.CONTENT_URI,projection,null,null);
+        Cursor cursor = getContentResolver().query(PetContract.PetEntry.CONTENT_URI,projection,null,null,null);
+//       displayView.setText(" "+cursor.getCount());
+        PetCursorAdaptor petCursorAdaptor = new PetCursorAdaptor(this,cursor);
+        listView.setAdapter(petCursorAdaptor);
     }
     /* private  void insertPet()
      {
@@ -123,15 +122,12 @@ public class CatalogActivity extends AppCompatActivity
                 //  insertPet();
                 if(contentValues.containsKey(PetContract.PetEntry.Column_Pet_Name)) {
                     String name = contentValues.getAsString(PetContract.PetEntry.Column_Pet_Name);
-                    //String breed = contentValues.getAsString(PetContract.PetEntry.Column_Pet_Breed);
-                    //int gender = contentValues.getAsInteger(PetContract.PetEntry.Column_Pet_Gender);
-                    //int weight = contentValues.getAsInteger(PetContract.PetEntry.Column_Pet_Weight);
-                    //if (name == null || breed == null || weight == 0 || gender == -1)
                     if (name == null) {
                         throw new IllegalArgumentException("one of the field is missing");
                     } else {
                         Uri newUri = getContentResolver().insert(PetContract.PetEntry.CONTENT_URI, contentValues);
-                        if (newUri == null) {
+                        if (newUri == null)
+                        {
                             Toast.makeText(this, getString(R.string.fail_to_save), Toast.LENGTH_LONG).show();
                         } else {
                             displayDatabaseInfo();
@@ -153,7 +149,8 @@ public class CatalogActivity extends AppCompatActivity
                         throw new IllegalArgumentException("Please provide name to update");
                     } else {
                         // String[] selectionArgs = {"gagan"};
-                        int rows = getContentResolver().update(PetContract.PetEntry.CONTENT_URI, contentValues1, selection, selectionArgs);
+                        int rows = getContentResolver().update(PetContract.PetEntry.CONTENT_URI, contentValues1,
+                                selection, selectionArgs);
                         //Uri byId= Uri.withAppendedPath(CONTENT_URI,"13");
                         // int rows = getContentResolver().update(byId, contentValues1, null, null);
                         // Log.v("path",.toString());
@@ -165,6 +162,7 @@ public class CatalogActivity extends AppCompatActivity
                         }
                     }
                 }
+                return true;
             case R.id.action_updateby_id:
                 contentValues1 = new ContentValues();
                 contentValues1.put(PetContract.PetEntry.Column_Pet_Name,"Pinko");
@@ -180,7 +178,7 @@ public class CatalogActivity extends AppCompatActivity
                     {
                     // String[] selectionArgs = {"gagan"};
                     //int rows = getContentResolver().update(PetContract.PetEntry.CONTENT_URI, contentValues1, selection, selectionArgs);
-                    Uri byId= Uri.withAppendedPath(CONTENT_URI,"13");
+                    Uri byId= Uri.withAppendedPath(CONTENT_URI,"8");
                     int rows = getContentResolver().update(byId, contentValues1, null, null);
                     Log.v("path",byId.toString());
                     if (rows==0) {
@@ -190,8 +188,16 @@ public class CatalogActivity extends AppCompatActivity
                         Toast.makeText(this,"Updated By id ", Toast.LENGTH_LONG).show();
                     }
                 }
+                return  true;
             case R.id.action_delete_all_entries:
                 // Do nothing for now
+                int rows = getContentResolver().delete(CONTENT_URI,selection,selectionArgs);
+                if (rows==0) {
+                    Toast.makeText(this, getString(R.string.fail_to_save), Toast.LENGTH_LONG).show();
+                } else {
+                    displayDatabaseInfo();
+                    Toast.makeText(this,"Record deleted ", Toast.LENGTH_LONG).show();
+                }
                 return true;
         }
         return super.onOptionsItemSelected(item);

@@ -31,22 +31,17 @@ public class EditorActivity extends AppCompatActivity
      private PetDbHelper petDbHelper =new PetDbHelper(this);
     /** EditText field to enter the pet's name */
     private EditText mNameEditText;
-
     /** EditText field to enter the pet's breed */
     private EditText mBreedEditText;
-
     /** EditText field to enter the pet's weight */
     private EditText mWeightEditText;
-
     /** EditText field to enter the pet's gender */
     private Spinner mGenderSpinner;
-
     /**
      * Gender of the pet. The possible values are:
      * 0 for unknown gender, 1 for male, 2 for female.
      */
     private int mGender = -1;
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -58,7 +53,6 @@ public class EditorActivity extends AppCompatActivity
         mBreedEditText = (EditText) findViewById(R.id.edit_pet_breed);
         mWeightEditText = (EditText) findViewById(R.id.edit_pet_weight);
         mGenderSpinner = (Spinner) findViewById(R.id.spinner_gender);
-
         setupSpinner();
     }
 
